@@ -47,9 +47,3 @@ app
       res.status(200).json({ message: `${user.name}님 다음에 또 뵙겠습니다.` });
     }
   });
-
-// 회원 개별 조회
-app.get("/users/:id");
-
-// 회원 개별 탈퇴
-app.delete("/users/:id");
