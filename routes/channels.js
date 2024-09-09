@@ -10,20 +10,36 @@ router
   .route("/")
   .get((req, res) => {
     if (db.size) {
+      const { userId } = req.body;
       const channels = [];
 
-      db.forEach(function (value, key) {
-        channels.push(value);
-      });
+      // 예외 처리 2가지
+      // 1) userId가 body에 없으면
+      if (userId) {
+        db.forEach(function (value, key) {
+          // value의 userId와 req.body.userId 가 같을 경우
+          if (value.userId === userId) {
+            channels.push(value);
+          }
+        });
 
-      res.status(200).json(channels);
+        // 2) userId가 가진 채널이 없으면
+        if (channels.length) {
+          res.status(200).json(channels);
+        } else {
+          res.status(404).json({ message: "조회할 채널이 없습니다." });
+        }
+      } else {
+        res.status(404).json({ message: "로그인이 필요한 페이지 입니다." });
+      }
     } else {
       res.status(404).json({ message: "조회할 채널이 없습니다." });
     }
   }) // 채널 전체 조회
   .post((req, res) => {
     if (req.body.channelTitle) {
-      db.set(id++, req.body);
+      let channel = req.body;
+      db.set(id++, channel);
 
       res
         .status(201)
