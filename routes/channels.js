@@ -1,13 +1,13 @@
 const express = require("express");
-const app = express();
-app.listen(7777);
-app.use(express.json());
+const router = express.Router();
+
+router.use(express.json());
 
 let db = new Map();
 var id = 1;
 
-app
-  .route("/channels")
+router
+  .route("/")
   .get((req, res) => {
     if (db.size) {
       const channels = [];
@@ -33,8 +33,8 @@ app
     }
   }); // 채널 개별 생성 = db에 저장
 
-app
-  .route("/channels/:id")
+router
+  .route("/:id")
   .put((req, res) => {
     let { id } = req.params;
     id = parseInt(id);
@@ -83,3 +83,5 @@ app
       res.status(404).json({ message: "채널 정보를 찾을 수 없습니다." });
     }
   }); // 채널 개별 조회
+
+module.exports = router;
