@@ -26,17 +26,48 @@ app
 app
   .route("/channels/:id")
   .put((req, res) => {
-    res.send("개별 수정");
+    let { id } = req.params;
+    id = parseInt(id);
+
+    const channel = db.get(id);
+    const oldTitle = channel.channelTitle;
+
+    if (channel) {
+      const newTitle = req.body.channelTitle;
+
+      channel.channelTitle = newTitle;
+      db.set(id, channel);
+
+      res.status(200).json({
+        message: `채널명이 성공적으로 수정되었습니다. 기존 : ${oldTitle} -> 수정 : ${newTitle}`,
+      });
+    } else {
+      res.status(404).json({ message: "채널 정보를 찾을 수 없습니다." });
+    }
   }) // 채널 개별 수정
   .delete((req, res) => {
-    res.send("개별 삭제");
+    console.log("Request received");
+    let { id } = req.params;
+    console.log(id);
+    id = parseInt(id);
+
+    const channel = db.get(id);
+
+    if (channel) {
+      db.delete(id);
+
+      res.status(200).json({
+        message: `${channel.channelTitle}이 정상적으로 삭제되었습니다. `,
+      });
+    } else {
+      res.status(404).json({ message: "채널 정보를 찾을 수 없습니다." });
+    }
   }) // 채널 개별 삭제
   .get((req, res) => {
     let { id } = req.params;
     id = parseInt(id);
 
     const channel = db.get(id);
-    console.log(channel, id);
 
     if (channel) {
       res.status(200).json(channel);
