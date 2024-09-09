@@ -9,7 +9,17 @@ var id = 1;
 app
   .route("/channels")
   .get((req, res) => {
-    res.send("전체 조회");
+    if (db.size) {
+      const channels = [];
+
+      db.forEach(function (value, key) {
+        channels.push(value);
+      });
+
+      res.status(200).json(channels);
+    } else {
+      res.status(404).json({ message: "조회할 채널이 없습니다." });
+    }
   }) // 채널 전체 조회
   .post((req, res) => {
     if (req.body.channelTitle) {
@@ -46,9 +56,7 @@ app
     }
   }) // 채널 개별 수정
   .delete((req, res) => {
-    console.log("Request received");
     let { id } = req.params;
-    console.log(id);
     id = parseInt(id);
 
     const channel = db.get(id);
