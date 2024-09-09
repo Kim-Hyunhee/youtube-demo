@@ -13,23 +13,42 @@ app.post("/login", function (req, res) {
 
   // userId가 디비에 저장된 회원인지 확인
   const { userId, password } = req.body;
-  db.forEach(function (user, id) {
-    // forEach(function (a, b, c))
-    // a: 데이터(value) b: 인덱스(key) c: 객체(Map)
-    // console.log(user.userId);
-    if (user.userId === userId) {
-      console.log("같은 거 찾았다!");
 
-      console.log(password, user.password);
-      // pwd도 맞는지 비교
-      if (user.password === password) {
-        console.log("패스워드도 같다!");
-      } else {
-        console.log("패스워드는 틀렸다!");
-      }
+  let loginUser = hasUserId(db, userId);
+
+  if (isExist(loginUser)) {
+    console.log("같은 거 찾았다!");
+
+    // pwd도 맞는지 비교
+    if (loginUser.password === password) {
+      console.log("패스워드도 같다!");
+    } else {
+      console.log("패스워드는 틀렸다!");
+    }
+  } else {
+    console.log("입력하신 아이디는 없는 아이디 입니다.");
+  }
+});
+
+function isExist(obj) {
+  if (Object.keys(obj).length) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+function hasUserId(db, userId) {
+  let foundUser = {};
+
+  db.forEach((user) => {
+    if (user.userId === userId) {
+      foundUser = user;
     }
   });
-});
+
+  return foundUser || {};
+}
 
 // 회원 가입
 app.post("/join", function (req, res) {
