@@ -1,14 +1,14 @@
 // express 모듈 셋팅
 const express = require("express");
-const app = express();
-app.listen(7777);
-app.use(express.json()); // http 외 모듈인 '미들웨어': json 설정
+const router = express.Router();
+
+router.use(express.json()); // http 외 모듈인 '미들웨어': json 설정
 
 let db = new Map();
 var id = 1; // 하나의 객체를 유니크하게 구별하기 위함
 
 // 로그인
-app.post("/login", function (req, res) {
+router.post("/login", function (req, res) {
   console.log(req.body); // userId, pwd
 
   // userId가 디비에 저장된 회원인지 확인
@@ -51,7 +51,7 @@ function hasUserId(db, userId) {
 }
 
 // 회원 가입
-app.post("/join", function (req, res) {
+router.post("/join", function (req, res) {
   if (req.body == {}) {
     res.status(400).json({ message: `입력 값을 다시 확인해주세요.` });
   } else {
@@ -61,7 +61,7 @@ app.post("/join", function (req, res) {
   }
 });
 
-app
+router
   .route("/users/:id")
   .get(function (req, res) {
     let { id } = req.params;
@@ -87,3 +87,5 @@ app
       res.status(200).json({ message: `${user.name}님 다음에 또 뵙겠습니다.` });
     }
   });
+
+module.exports = router;
