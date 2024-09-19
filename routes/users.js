@@ -2,6 +2,8 @@
 const express = require("express");
 const router = express.Router();
 
+const conn = require("../mariadb");
+
 router.use(express.json()); // http 외 모듈인 '미들웨어': json 설정
 
 let db = new Map();
@@ -64,14 +66,15 @@ router.post("/join", function (req, res) {
 router
   .route("/users")
   .get(function (req, res) {
-    let { userId } = req.body;
+    let { email } = req.body;
 
-    const user = db.get(userId);
-    if (user) {
-      res.status(200).json({ userId: user.userId, name: user.name });
-    } else {
-      res.status(404).json({ message: "회원 정보가 없습니다." });
-    }
+    conn.query(
+      `SELECT * FROM users WHERE email = ?`,
+      email,
+      function (err, results, fields) {
+        res.status(200).json(results);
+      }
+    );
   })
   .delete(function (req, res) {
     let { userId } = req.body;
