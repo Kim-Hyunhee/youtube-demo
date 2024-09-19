@@ -3,6 +3,13 @@ const router = express.Router();
 const conn = require("../mariadb");
 const { body, param, validationResult } = require("express-validator");
 
+// jwt 모듈
+const jwt = require("jsonwebtoken");
+
+// dotenv 모듈
+const dotenv = require("dotenv");
+dotenv.config();
+
 router.use(express.json());
 
 const validate = (req, res, next) => {
@@ -32,17 +39,21 @@ router.post(
         return res.status(400).end();
       }
 
-      if (results.length) {
-        return res.status(200).json(results);
-      } else {
-        res.status(404).json({ message: "채널 정보를 찾을 수 없습니다." });
-      }
       const loginUser = results[0];
 
       if (loginUser && loginUser.password == password) {
+        // token 발급
+        const token = jwt.sign(
+          { email: loginUser.email, name: loginUser.name },
+          process.env.PRIVATE_KEY
+        );
+        // res.cookie()
         res
           .status(200)
-          .json({ message: `${loginUser.name}님 로그인 되었습니다.` });
+          .json({
+            message: `${loginUser.name}님 로그인 되었습니다.`,
+            token: token,
+          });
       } else {
         res.status(404).json({ message: `이메일 또는 비밀번호가 틀렸습니다.` });
       }
