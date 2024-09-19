@@ -53,13 +53,20 @@ function hasUserId(db, userId) {
 
 // 회원 가입
 router.post("/join", function (req, res) {
+  console.log(req.body);
   if (req.body == {}) {
     res.status(400).json({ message: `입력 값을 다시 확인해주세요.` });
   } else {
-    const { userId } = req.body;
-    db.set(userId, req.body);
+    const { email, name, password, contact } = req.body;
 
-    res.status(201).json({ message: `${db.get(userId).name}님 환영합니다.` });
+    conn.query(
+      `INSERT INTO users (email, name, password, contact )
+      VALUES (?, ?, ?, ?),`,
+      [email, name, password, contact],
+      function (err, results, fields) {
+        res.status(201).json(results);
+      }
+    );
   }
 });
 
