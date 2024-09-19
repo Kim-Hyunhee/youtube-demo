@@ -86,26 +86,38 @@ router
       }
     });
   })
-  .put((req, res) => {
-    let { id } = req.params;
-    id = parseInt(id);
+  .put(
+    [
+      param("id").notEmpty().withMessage("숫자 입력 필요"),
+      body("name").notEmpty().isString().withMessage("채널명 오류"),
+    ],
+    (req, res) => {
+      const err = validationResult(req);
 
-    const channel = db.get(id);
-    const oldTitle = channel.channelTitle;
+      if (!err.isEmpty()) {
+        return res.status(400).json(err.array());
+      }
 
-    if (channel) {
-      const newTitle = req.body.channelTitle;
+      let { id } = req.params;
+      id = parseInt(id);
+      let { name } = req.body;
 
-      channel.channelTitle = newTitle;
-      db.set(id, channel);
+      let sql = `UPDATE channel SET name=? WHERE id=?`;
+      let values = [name, id];
+      conn.query(sql, values, function (err, results) {
+        if (err) {
+          console.log(err);
+          return res.status(400).end();
+        }
 
-      res.status(200).json({
-        message: `채널명이 성공적으로 수정되었습니다. 기존 : ${oldTitle} -> 수정 : ${newTitle}`,
+        if (results.affectedRows == 0) {
+          return res.status(400).end();
+        } else {
+          res.status(200).json(results);
+        }
       });
-    } else {
-      notFoundChannel();
     }
-  })
+  )
 
   .delete((req, res) => {
     let { id } = req.params;
